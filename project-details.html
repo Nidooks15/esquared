@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Project Details | E-SQUARED Engineering</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Header:wght@700;800&family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+
+    <style>
+        .project-hero {
+            height: 60vh;
+            background-size: cover;
+            background-position: center;
+            position: relative;
+            display: flex;
+            align-items: flex-end;
+        }
+
+        .project-hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(to top, rgba(0,0,0,0.8), transparent);
+        }
+
+        .hero-info {
+            position: relative;
+            z-index: 10;
+            color: white;
+            padding-bottom: 4rem;
+        }
+
+        .detail-meta {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+            margin-top: -3rem; /* Overlap Hero */
+            position: relative;
+            z-index: 20;
+        }
+
+        .meta-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 2rem;
+            text-align: center;
+        }
+
+        .meta-item h4 {
+            color: var(--primary);
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.5rem;
+        }
+
+        .meta-item p {
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: var(--secondary);
+        }
+
+        .content-grid {
+            display: grid;
+            grid-template-columns: 2fr 1fr;
+            gap: 4rem;
+            margin-top: 4rem;
+        }
+
+        .gallery-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 1rem;
+            margin-top: 2rem;
+        }
+
+        .gallery-img {
+            width: 100%;
+            height: 150px;
+            object-fit: cover;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: opacity 0.2s;
+        }
+
+        .gallery-img:hover {
+            opacity: 0.9;
+        }
+
+        @media (max-width: 900px) {
+            .content-grid { grid-template-columns: 1fr; }
+            .meta-grid { grid-template-columns: 1fr 1fr; }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="brand">
+                <img src="images/logo.png" alt="E-Squared Logo" style="height: 50px; margin-right: 10px;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="font-size: 1.2rem; letter-spacing: 0.05em; color: var(--secondary);">E-SQUARED</span>
+                    <span style="font-size: 0.7rem; font-weight: 400; color: var(--primary);">ENGINEERING SERVICES</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="projects.html" class="nav-link active">Projects</a></li>
+                <li><a href="quote.html" class="btn btn-primary">Get Quote</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <div id="loading" style="text-align: center; padding: 5rem;">Loading Project...</div>
+    <div id="projectContent" style="display: none;">
+        
+        <!-- Hero -->
+        <div id="heroBg" class="project-hero">
+            <div class="container hero-info">
+                <span style="background: var(--primary); padding: 0.25rem 0.75rem; border-radius: 4px; font-weight: 600; font-size: 0.8rem; text-transform: uppercase;" id="pType">Type</span>
+                <h1 id="pTitle" style="font-size: 3rem; margin-top: 1rem; color: white;">Project Title</h1>
+                <p id="pLocation" style="font-size: 1.2rem; opacity: 0.9;">Location, City</p>
+            </div>
+        </div>
+
+        <section class="section" style="padding-top: 0;">
+            <div class="container">
+                <!-- Meta -->
+                <div class="detail-meta">
+                    <div class="meta-grid">
+                        <div class="meta-item">
+                            <h4>Client</h4>
+                            <p id="pClient">-</p>
+                        </div>
+                        <div class="meta-item">
+                            <h4>Timeline</h4>
+                            <p id="pTimeline">-</p>
+                        </div>
+                        <div class="meta-item">
+                            <h4>Budget</h4>
+                            <p id="pBudget">-</p>
+                        </div>
+                        <div class="meta-item">
+                            <h4>Status</h4>
+                            <p id="pStatus" style="color: var(--success);">-</p>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Content -->
+                <div class="content-grid">
+                    <div class="main-content">
+                        <h2 class="mb-2">Project Overview</h2>
+                        <div id="pDesc" style="color: #475569; margin-bottom: 2rem; white-space: pre-wrap;">
+                            Description goes here...
+                        </div>
+
+                        <h2 class="mb-2">Gallery</h2>
+                        <div class="gallery-grid" id="pGallery">
+                            <!-- Images -->
+                        </div>
+                    </div>
+                    
+                    <div class="sidebar">
+                        <div style="background: #f8fafc; padding: 2rem; border-radius: 8px; position: sticky; top: 100px;">
+                            <h3 class="mb-1">Project Specs</h3>
+                            <ul style="list-style: none; color: #475569;">
+                                <li style="margin-bottom: 0.5rem;"><strong>Area:</strong> <span id="pArea">0 sqm</span></li>
+                                <li style="margin-bottom: 0.5rem;"><strong>Floors:</strong> <span id="pFloors">0</span></li>
+                                <li style="margin-bottom: 0.5rem;"><strong>Start Date:</strong> <span id="pStart">Date</span></li>
+                            </ul>
+                            <a href="schedule.html" class="btn btn-primary" style="width: 100%; margin-top: 2rem;">Inquire Similar Project</a>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+    </div>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="copyright">&copy; 2024 E-SQUARED Engineering.</div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { db } from './js/db.js';
+
+        async function init() {
+            const params = new URLSearchParams(window.location.search);
+            const id = params.get('id');
+            
+            if (!id) {
+                 window.location.href = 'projects.html';
+                 return;
+            }
+
+            // ASYNC Call
+            const project = await db.getProjectById(id);
+
+            if (project) {
+                document.getElementById('loading').style.display = 'none';
+                document.getElementById('projectContent').style.display = 'block';
+
+                // Bind Data
+                document.title = `${project.title} | E-SQUARED`;
+                document.getElementById('pTitle').textContent = project.title;
+                document.getElementById('pLocation').textContent = project.location;
+                document.getElementById('pType').textContent = project.type;
+                document.getElementById('pClient').textContent = project.client || 'Private Client';
+                document.getElementById('pTimeline').textContent = project.timeline || 'Ongoing';
+                document.getElementById('pBudget').textContent = project.budget || 'Confidential';
+                document.getElementById('pStatus').textContent = project.status;
+                document.getElementById('pDesc').textContent = project.full_desc || project.fullDesc || project.short_desc || project.shortDesc;
+                document.getElementById('pArea').textContent = project.area || '-';
+                
+                // Images
+                const heroImg = project.image_url || project.imageUrl || 'https://via.placeholder.com/1200x600?text=No+Image';
+                document.getElementById('heroBg').style.backgroundImage = `url('${heroImg}')`;
+
+                // Gallery
+                const gallery = document.getElementById('pGallery');
+                const galImages = project.gallery || [];
+                
+                if (galImages.length > 0) {
+                    galImages.forEach(img => {
+                        const el = document.createElement('img');
+                        el.src = img;
+                        el.className = 'gallery-img';
+                        el.onclick = () => window.open(img, '_blank');
+                        gallery.appendChild(el);
+                    });
+                } else {
+                    gallery.innerHTML = '<p style="color:#94a3b8;">No additional images.</p>';
+                }
+
+            } else {
+                document.getElementById('loading').innerHTML = '<h2>Project Not Found</h2><a href="projects.html" class="btn btn-primary">Back to Gallery</a>';
+            }
+        }
+        
+        init();
+    </script>
+</body>
+</html>

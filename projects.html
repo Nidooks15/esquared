@@ -1,0 +1,239 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projects | E-SQUARED Engineering</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Header:wght@700;800&family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .projects-header {
+            background: var(--secondary);
+            color: white;
+            padding: 4rem 0;
+            text-align: center;
+        }
+
+        .filter-bar {
+            display: flex;
+            justify-content: center;
+            gap: 1rem;
+            margin: 2rem 0 3rem;
+            flex-wrap: wrap;
+        }
+
+        .filter-btn {
+            padding: 0.5rem 1.5rem;
+            border-radius: 50px;
+            background: white;
+            border: 1px solid #e2e8f0;
+            cursor: pointer;
+            font-weight: 500;
+            transition: all 0.2s;
+        }
+
+        .filter-btn.active, .filter-btn:hover {
+            background: var(--primary-gradient);
+            color: white;
+            border-color: transparent;
+        }
+
+        .projects-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+            gap: 2rem;
+            padding-bottom: 4rem;
+        }
+
+        .project-card {
+            background: white;
+            border-radius: 12px;
+            overflow: hidden;
+            box-shadow: 0 10px 15px -3px rgba(0,0,0,0.05);
+            transition: transform 0.3s ease;
+            position: relative;
+        }
+
+        .project-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 25px -5px rgba(0,0,0,0.1);
+        }
+
+        .project-img {
+            height: 250px;
+            width: 100%;
+            object-fit: cover;
+        }
+
+        .project-content {
+            padding: 1.5rem;
+        }
+
+        .project-tag {
+            display: inline-block;
+            padding: 0.25rem 0.75rem;
+            background: #f1f5f9;
+            color: var(--secondary);
+            border-radius: 4px;
+            font-size: 0.8rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .project-status {
+            position: absolute;
+            top: 1rem;
+            right: 1rem;
+            background: rgba(0,0,0,0.7);
+            color: white;
+            padding: 0.25rem 0.75rem;
+            border-radius: 50px;
+            font-size: 0.8rem;
+            backdrop-filter: blur(4px);
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="brand">
+                <img src="images/logo.png" alt="E-Squared Logo" style="height: 50px; margin-right: 10px;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="font-size: 1.2rem; letter-spacing: 0.05em; color: var(--secondary);">E-SQUARED</span>
+                    <span style="font-size: 0.7rem; font-weight: 400; color: var(--primary);">ENGINEERING SERVICES</span>
+                </div>
+            </a>
+            <div class="mobile-toggle">☰</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="quote.html" class="nav-link">Get Quote</a></li>
+                <li><a href="projects.html" class="nav-link active">Projects</a></li>
+                <li><a href="schedule.html" class="btn btn-primary">Schedule Meeting</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <header class="projects-header">
+        <div class="container">
+            <h1 style="color: white; margin-bottom: 1rem;">Our Portfolio</h1>
+            <p style="opacity: 0.8; max-width: 600px; margin: 0 auto;">
+                Showcasing excellence in residential, commercial, and industrial construction across the Philippines.
+            </p>
+        </div>
+    </header>
+
+    <!-- Main -->
+    <section class="section">
+        <div class="container">
+            <!-- Filter -->
+            <div class="filter-bar">
+                <button class="filter-btn active" data-filter="all">All Projects</button>
+                <button class="filter-btn" data-filter="residential">Residential</button>
+                <button class="filter-btn" data-filter="commercial">Commercial</button>
+                <button class="filter-btn" data-filter="renovation">Renovation</button>
+            </div>
+
+            <!-- Grid -->
+            <div id="projectsGrid" class="projects-grid">
+                <!-- Loaded via JS -->
+            </div>
+            
+            <div id="noProjects" style="text-align: center; display: none; padding: 4rem;">
+                <p style="color: #cbd5e1; font-size: 1.2rem;">No projects found in this category.</p>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="#" class="brand" style="color: white; margin-bottom: 1rem; display: inline-flex; align-items: center;">
+                        <img src="images/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;">
+                        <span>E-SQUARED</span>
+                    </a>
+                    <p style="opacity: 0.8;">Leading the way in sustainable and resilient construction.</p>
+                </div>
+            </div>
+            <div class="copyright">&copy; 2024 E-SQUARED Engineering. All rights reserved.</div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { db } from './js/db.js';
+
+        const grid = document.getElementById('projectsGrid');
+        const emptyState = document.getElementById('noProjects');
+        const filterBtns = document.querySelectorAll('.filter-btn');
+
+        async function init() {
+            // ASYNC Call to Supabase
+            const allProjects = await db.getProjects();
+            
+            renderProjects('all');
+
+            // Filter Logic
+            filterBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Active State
+                    filterBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    
+                    // Render
+                    renderProjects(btn.dataset.filter);
+                });
+            });
+
+            function renderProjects(category) {
+                grid.innerHTML = '';
+                
+                const filtered = category === 'all' 
+                    ? allProjects 
+                    : allProjects.filter(p => p.type.toLowerCase() === category); // assuming p.type from DB is Title Case
+
+                if (filtered.length === 0) {
+                    emptyState.style.display = 'block';
+                    return;
+                }
+                
+                emptyState.style.display = 'none';
+
+                filtered.forEach(project => {
+                    // Handle image logic
+                    const cover = (project.gallery && project.gallery.length > 0) ? project.gallery[0] : (project.image_url || project.imageUrl || 'https://via.placeholder.com/400x300?text=Project');
+
+                    const card = document.createElement('div');
+                    card.className = 'project-card';
+                    card.innerHTML = `
+                        <div style="position: relative;">
+                            <img src="${cover}" class="project-img" alt="${project.title}">
+                            <div class="project-status">${project.status}</div>
+                        </div>
+                        <div class="project-content">
+                            <span class="project-tag">${project.type}</span>
+                            <h3 class="mb-1">${project.title}</h3>
+                            <p style="color: #64748b; font-size: 0.9rem; margin-bottom: 1.5rem; line-height: 1.5;">${project.short_desc || project.shortDesc || ''}</p>
+                            <a href="project-details.html?id=${project.id}" style="color: var(--primary-dark); font-weight: 600; text-decoration: none;">View Details →</a>
+                        </div>
+                    `;
+                    grid.appendChild(card);
+                });
+            }
+        }
+
+        init();
+    </script>
+</body>
+</html>

@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Esquared | Premier Construction & Engineering</title>
+    <meta name="description" content="Esquared Construction - Building the future with precision.">
+    
+    <!-- Fonts -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Header:wght@700;800&family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+</head>
+<body>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="brand">
+                <img src="images/logo.png" alt="E-Squared Logo" style="height: 50px; margin-right: 10px;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="font-size: 1.2rem; letter-spacing: 0.05em; color: var(--secondary);">E-SQUARED</span>
+                    <span style="font-size: 0.7rem; font-weight: 400; color: var(--primary);">ENGINEERING SERVICES</span>
+                </div>
+            </a>
+            <div class="mobile-toggle">☰</div>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="#about" class="nav-link">About</a></li>
+                <li><a href="#services" class="nav-link">Services</a></li>
+                <li><a href="quote.html" class="nav-link">Get Quote</a></li>
+                <li><a href="schedule.html" class="btn btn-primary">Schedule Meeting</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Hero Section -->
+    <header class="hero section text-center" style="background: linear-gradient(rgba(15, 23, 42, 0.8), rgba(15, 23, 42, 0.8)), url('https://images.unsplash.com/photo-1541888946425-d81bb19240f5?q=80&w=2070&auto=format&fit=crop'); background-size: cover; color: white;">
+        <div class="container">
+            <h1 class="mb-1" style="font-size: clamp(2.5rem, 5vw, 3.5rem); color: white;">Building Dreams with Precision</h1>
+            <p class="mb-2" style="font-size: clamp(1rem, 2vw, 1.25rem); max-width: 600px; margin: 0 auto 2rem; color: #cbd5e1;">
+                E-SQUARED delivers premium construction and civil engineering solutions tailored to your vision. From residential homes to commercial complexes.
+            </p>
+            <div style="display: flex; gap: 1rem; justify-content: center;">
+                <a href="quote.html" class="btn btn-primary">Instant Quotation</a>
+                <a href="#projects" class="btn btn-outline" style="color: white; border-color: white;">View Our Work</a>
+            </div>
+        </div>
+    </header>
+
+    <!-- Services Section -->
+    <section id="services" class="section">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2 class="mb-1">Our Expertise</h2>
+                <p>Comprehensive construction services for every scale.</p>
+            </div>
+            
+            <div class="grid grid-3">
+                <div class="card" style="padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🏗️</div>
+                    <h3 class="mb-1">General Construction</h3>
+                    <p>End-to-end building construction for residential and commercial projects with strict quality control.</p>
+                </div>
+                <div class="card" style="padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">📐</div>
+                    <h3 class="mb-1">Architectural Design</h3>
+                    <p>Innovative and practical designs that maximize space, improved by our in-house engineering team.</p>
+                </div>
+                <div class="card" style="padding: 2rem; background: white; border-radius: 8px; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.05);">
+                    <div style="font-size: 3rem; margin-bottom: 1rem;">🔨</div>
+                    <h3 class="mb-1">Renovation</h3>
+                    <p>Transforming existing spaces into modern, efficient, and beautiful environments.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Sample Projects -->
+    <section id="projects" class="section" style="background-color: white;">
+        <div class="container">
+            <div class="text-center mb-4">
+                <h2>Featured Projects</h2>
+            </div>
+            <div class="grid grid-3" id="featuredProjects">
+                <!-- Loaded via JS -->
+            </div>
+            <div style="text-align: center; margin-top: 2rem;">
+                <a href="projects.html" class="btn btn-outline" style="color: var(--secondary); border-color: var(--secondary);">View All Projects</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- Footer -->
+    <footer>
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-col">
+                    <a href="#" class="brand" style="color: white; margin-bottom: 1rem; display: inline-flex; align-items: center;">
+                        <img src="images/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;">
+                        <span>E-SQUARED</span>
+                    </a>
+                    <p style="opacity: 0.8;">
+                        Leading the way in sustainable and resilient construction. 
+                        We build not just structures, but legacies.
+                    </p>
+                </div>
+                <div class="footer-col">
+                    <h4>Quick Links</h4>
+                    <ul>
+                        <li><a href="index.html">Home</a></li>
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#projects">Projects</a></li>
+                        <li><a href="quote.html">Get Quote</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Services</h4>
+                    <ul>
+                        <li><a href="#">Construction</a></li>
+                        <li><a href="#">Design & Build</a></li>
+                        <li><a href="#">Renovation</a></li>
+                        <li><a href="#">Consultancy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-col">
+                    <h4>Contact</h4>
+                    <ul>
+                        <li>Manila, Philippines</li>
+                        <li>contact@esquared.xyz</li>
+                        <li>+63 900 000 0000</li>
+                    </ul>
+                </div>
+            </div>
+            <div class="copyright">
+                &copy; 2024 Esquared Construction. All rights reserved.
+            </div>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { db } from './js/db.js';
+        
+        async function loadFeatured() {
+            const container = document.getElementById('featuredProjects');
+            const projects = await db.getProjects(); // ASYNC
+
+            // Get latest 3
+            const recent = projects.slice(0, 3);
+            
+            if (recent.length === 0) {
+                container.innerHTML = '<p style="grid-column: 1/-1; text-align: center; color: #64748b;">No projects to display yet.</p>';
+            } else {
+                recent.forEach(p => {
+                    // Determine images to show
+                    let imagesHtml = '';
+                    if (p.gallery && p.gallery.length > 1) {
+                        // Multi-image Carousel
+                        imagesHtml = `
+                            <div style="display: flex; overflow-x: auto; scroll-snap-type: x mandatory; -webkit-overflow-scrolling: touch; scrollbar-width: none;">
+                                ${p.gallery.map(img => `
+                                    <img src="${img}" style="min-width: 100%; height: 250px; object-fit: cover; scroll-snap-align: start;">
+                                `).join('')}
+                            </div>
+                        `;
+                    } else {
+                        // Single Image (Handle snake_case from DB)
+                        const img = (p.gallery && p.gallery[0]) || p.image_url || p.imageUrl || 'https://via.placeholder.com/400x300?text=Project';
+                        imagesHtml = `<img src="${img}" style="width: 100%; height: 250px; object-fit: cover;">`;
+                    }
+
+                    const card = document.createElement('div');
+                    card.innerHTML = `
+                    <div style="background: white; border-radius: 8px; overflow: hidden; box-shadow: 0 10px 15px -3px rgba(0,0,0,0.1); height: 100%;">
+                        <div style="position: relative;">
+                            ${imagesHtml}
+                            <span style="position: absolute; top: 1rem; right: 1rem; background: rgba(0,0,0,0.7); color: white; padding: 0.25rem 0.75rem; border-radius: 50px; font-size: 0.8rem; backdrop-filter: blur(4px); pointer-events: none;">${p.status}</span>
+                            ${(p.gallery && p.gallery.length > 1) ? '<span style="position: absolute; bottom: 1rem; right: 1rem; background: rgba(0,0,0,0.5); color: white; padding: 2px 8px; border-radius: 12px; font-size: 0.7rem; pointer-events: none;">Scroll ↔</span>' : ''}
+                        </div>
+                        <div style="padding: 1.5rem;">
+                            <span style="font-size: 0.8rem; text-transform: uppercase; color: var(--primary); font-weight: 600;">${p.type}</span>
+                            <h3 class="mb-1" style="font-size: 1.25rem;">${p.title}</h3>
+                            <p class="mb-1" style="color: #64748b;">${p.location}</p>
+                            <a href="project-details.html?id=${p.id}" style="color: var(--primary-dark); font-weight: 600; text-decoration: none;">View Details →</a>
+                        </div>
+                    </div>
+                    `;
+                    container.appendChild(card);
+                });
+            }
+        }
+        
+        loadFeatured();
+    </script>
+    <script>
+        // Simple Mobile Toggle
+        document.querySelector('.mobile-toggle').addEventListener('click', () => {
+            document.querySelector('.nav-links').classList.toggle('active');
+        });
+    </script>
+</body>
+</html>

@@ -1,0 +1,261 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Schedule Meeting | Esquared Construction</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Header:wght@700;800&family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .split-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 0;
+            min-height: calc(100vh - var(--header-height));
+        }
+
+        .calendar-section {
+            padding: 4rem;
+            background: white;
+        }
+
+        .info-section {
+            padding: 4rem;
+            background: var(--secondary);
+            color: white;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .date-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 0.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .date-card {
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 1rem 0.5rem;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .date-card:hover {
+            border-color: var(--primary);
+            background: #fffbeb;
+        }
+
+        .date-card.selected {
+            background: var(--primary);
+            color: white;
+            border-color: var(--primary);
+        }
+
+        .time-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+        }
+
+        .time-slot {
+            padding: 0.75rem;
+            border: 1px solid #e2e8f0;
+            border-radius: 6px;
+            text-align: center;
+            cursor: pointer;
+        }
+
+        .time-slot:hover {
+            border-color: var(--primary);
+            color: var(--primary);
+        }
+
+        .time-slot.selected {
+            background: var(--secondary);
+            color: white;
+            border-color: var(--secondary);
+        }
+
+        @media (max-width: 900px) {
+            .split-layout {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="brand">
+                <img src="images/logo.png" alt="E-Squared Logo" style="height: 50px; margin-right: 10px;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="font-size: 1.2rem; letter-spacing: 0.05em; color: var(--secondary);">E-SQUARED</span>
+                    <span style="font-size: 0.7rem; font-weight: 400; color: var(--primary);">ENGINEERING SERVICES</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="quote.html" class="nav-link">Get Quote</a></li>
+                <li><a href="schedule.html" class="nav-link active">Schedule</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <div class="split-layout">
+        <!-- Calendar Side -->
+        <div class="calendar-section">
+            <h2 class="mb-2">Select a Date & Time</h2>
+            
+            <div class="mb-2">
+                <h4 class="mb-1">December 2025</h4>
+                <div class="date-grid" id="dateGrid">
+                    <!-- JS Generated -->
+                </div>
+            </div>
+
+            <div id="timeSection" style="display: none;">
+                <h4 class="mb-1">Available Slots</h4>
+                <div class="time-grid" id="timeGrid">
+                    <!-- JS Generated -->
+                </div>
+            </div>
+
+            <div id="bookingForm" style="display: none; margin-top: 3rem;">
+                <h4 class="mb-1">Your Details</h4>
+                <form id="confirmForm">
+                    <div class="form-group mb-1">
+                        <input type="text" name="name" class="form-control" placeholder="Full Name" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div class="form-group mb-1">
+                        <input type="email" name="email" class="form-control" placeholder="Email Address" required style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                    </div>
+                    <div class="form-group mb-2">
+                        <select name="service" class="form-control" style="width: 100%; padding: 0.8rem; border: 1px solid #ddd; border-radius: 4px;">
+                            <option>Site Inspection</option>
+                            <option>Design Consultation</option>
+                            <option>Quotation Discussion</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Confirm Booking</button>
+                </form>
+            </div>
+        </div>
+
+        <!-- Info Side -->
+        <div class="info-section">
+            <h1 class="mb-2" style="font-size: 3rem; color: white;">Let's build something great.</h1>
+            <p style="font-size: 1.25rem; opacity: 0.8; margin-bottom: 3rem;">
+                Book a consultation with our senior engineers and architects. We'll help you bring your vision to life.
+            </p>
+            
+            <div style="background: rgba(255,255,255,0.1); padding: 2rem; border-radius: 8px;">
+                <h3 style="color: white; margin-bottom: 1rem;">Selected Appointment</h3>
+                <div id="summary" style="opacity: 0.7;">Select a date to continue...</div>
+            </div>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from './js/db.js';
+
+        // Scheduler Logic
+        const dateGrid = document.getElementById('dateGrid');
+        const timeGrid = document.getElementById('timeGrid');
+        const timeSection = document.getElementById('timeSection');
+        const bookingForm = document.getElementById('bookingForm');
+        const summary = document.getElementById('summary');
+
+        let selectedDate = null;
+        let selectedTime = null;
+
+        // Generate next 7 days
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const today = new Date();
+        
+        for(let i = 0; i < 7; i++) {
+            const date = new Date(today);
+            date.setDate(today.getDate() + i);
+            
+            const dayName = days[date.getDay()];
+            const dayNum = date.getDate();
+            
+            const el = document.createElement('div');
+            el.className = 'date-card';
+            el.innerHTML = `<strong>${dayName}</strong><br>${dayNum}`;
+            
+            el.addEventListener('click', () => {
+                document.querySelectorAll('.date-card').forEach(c => c.classList.remove('selected'));
+                el.classList.add('selected');
+                selectedDate = date.toDateString();
+                showTimes();
+                updateSummary();
+            });
+            
+            dateGrid.appendChild(el);
+        }
+
+        function showTimes() {
+            const slots = ['09:00 AM', '10:00 AM', '11:00 AM', '01:00 PM', '02:00 PM', '03:00 PM', '04:00 PM'];
+            timeGrid.innerHTML = '';
+            
+            slots.forEach(time => {
+                const el = document.createElement('div');
+                el.className = 'time-slot';
+                el.textContent = time;
+                
+                el.addEventListener('click', () => {
+                    document.querySelectorAll('.time-slot').forEach(c => c.classList.remove('selected'));
+                    el.classList.add('selected');
+                    selectedTime = time;
+                    bookingForm.style.display = 'block';
+                    bookingForm.scrollIntoView({ behavior: 'smooth' });
+                    updateSummary();
+                });
+                
+                timeGrid.appendChild(el);
+            });
+            
+            timeSection.style.display = 'block';
+        }
+
+        function updateSummary() {
+            if (selectedDate && selectedTime) {
+                summary.innerHTML = `<strong>${selectedDate}</strong><br>at ${selectedTime}`;
+            } else if (selectedDate) {
+                summary.textContent = `${selectedDate} - Select a time`;
+            }
+        }
+
+        document.getElementById('confirmForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(e.target);
+            
+            const booking = {
+                date: selectedDate,
+                time: selectedTime,
+                name: formData.get('name'),
+                email: formData.get('email'),
+                service: formData.get('service')
+            };
+
+            db.addBooking(booking);
+            
+            alert('Booking Confirmed! An email has been sent to ' + booking.email);
+            window.location.href = 'index.html';
+        });
+    </script>
+</body>
+</html>

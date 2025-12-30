@@ -1,0 +1,493 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Admin Dashboard | Esquared</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        .dashboard-container {
+            padding: 2rem;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 1.5rem;
+            border-radius: 8px;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            color: var(--primary);
+        }
+
+        /* Tabs */
+        .admin-tabs {
+            display: flex;
+            gap: 1rem;
+            margin-bottom: 2rem;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .tab-btn {
+            padding: 1rem 2rem;
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            font-weight: 600;
+            cursor: pointer;
+            color: #64748b;
+        }
+
+        .tab-btn.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+        }
+
+        .tab-content { display: none; }
+        .tab-content.active { display: block; }
+
+        /* Tables & Forms */
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+            box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1);
+        }
+
+        th, td {
+            padding: 1rem;
+            text-align: left;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        th { background: #f8fafc; font-weight: 600; }
+
+        .modal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.5);
+            align-items: center;
+            justify-content: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background: white;
+            padding: 2rem;
+            border-radius: 8px;
+            width: 500px;
+            max-width: 90%;
+        }
+
+        /* Login Screen */
+        #loginScreen {
+            position: fixed;
+            inset: 0;
+            background: #0f172a;
+            z-index: 2000;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .login-box {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            width: 400px;
+            text-align: center;
+        }
+    </style>
+</head>
+<body style="background: #f1f5f9;">
+
+    <!-- Login Overlay -->
+    <div id="loginScreen">
+        <div class="login-box">
+            <h2 class="mb-2">Admin Login</h2>
+            <form id="loginForm">
+                <input type="password" id="adminPass" class="form-control mb-2" placeholder="Enter Password" style="width: 100%; padding: 0.8rem; margin-bottom: 1rem;">
+                <button type="submit" class="btn btn-primary" style="width: 100%;">Access Dashboard</button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Main Dashboard -->
+    <div id="adminPanel" style="display: none;">
+        <nav class="navbar" style="background: #1e293b; color: white;">
+            <div class="container nav-container">
+                <span class="brand" style="color: white; display: flex; align-items: center;">
+                    <img src="images/logo.png" alt="Logo" style="height: 40px; margin-right: 10px;">
+                    E-SQUARED Admin
+                </span>
+                <div style="display: flex; gap: 1rem; align-items: center;">
+                    <span id="connectionStatus" style="font-size: 0.8rem; padding: 4px 8px; border-radius: 4px; background: #64748b; color: white;">Checking...</span>
+                    <a href="index.html" style="color: white; opacity: 0.7;">View Site</a>
+                    <button id="logoutBtn" style="background: transparent; border: 1px solid rgba(255,255,255,0.2); color: white; padding: 0.5rem 1rem; border-radius: 4px; cursor: pointer;">Logout</button>
+                </div>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            <div class="admin-tabs">
+                <button class="tab-btn active" onclick="switchTab('overview')">Overview</button>
+                <button class="tab-btn" onclick="switchTab('projects')">Project Manager</button>
+            </div>
+
+            <!-- Overview Tab -->
+            <div id="overview" class="tab-content active">
+                <div class="grid grid-3 mb-4">
+                    <div class="stat-card">
+                        <h3>Total Bookings</h3>
+                        <div class="stat-value" id="totalBookings">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Active Projects</h3>
+                        <div class="stat-value" id="totalProjects">0</div>
+                    </div>
+                    <div class="stat-card">
+                        <h3>Total Quotes</h3>
+                        <div class="stat-value" id="totalQuotes">0</div>
+                    </div>
+                </div>
+
+                <div class="grid grid-2">
+                    <div>
+                        <h3 class="mb-1">Recent Bookings</h3>
+                        <table>
+                            <thead><tr><th>Date</th><th>Client</th><th>Service</th></tr></thead>
+                            <tbody id="bookingsTable"></tbody>
+                        </table>
+                    </div>
+                    <div>
+                        <h3 class="mb-1">Recent Quotes</h3>
+                        <table>
+                            <thead><tr><th>Date</th><th>Type</th><th>Est. Cost</th></tr></thead>
+                            <tbody id="quotesTable"></tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Projects Tab -->
+            <div id="projects" class="tab-content">
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 2rem;">
+                    <h3>Manage Portfolio</h3>
+                    <button class="btn btn-primary" onclick="openProjectModal()">+ Add New Project</button>
+                </div>
+
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Image</th>
+                            <th>Title</th>
+                            <th>Type</th>
+                            <th>Status</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="projectsTable">
+                        <!-- JS Generated -->
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <!-- Project Modal -->
+    <div id="projectModal" class="modal">
+        <div class="modal-content">
+            <h3 class="mb-2" id="modalTitle">Add Project</h3>
+            <form id="projectForm">
+                <input type="hidden" name="id" id="prjId">
+                <div class="grid grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+                    <input type="text" name="title" placeholder="Project Title" class="form-control" required style="width: 100%; padding: 0.5rem;">
+                    <select name="type" class="form-control" style="width: 100%; padding: 0.5rem;">
+                        <option value="Residential">Residential</option>
+                        <option value="Commercial">Commercial</option>
+                        <option value="Renovation">Renovation</option>
+                    </select>
+                </div>
+                <div class="grid grid-2" style="gap: 1rem; margin-bottom: 1rem;">
+                    <input type="text" name="location" placeholder="Location" class="form-control" required style="width: 100%; padding: 0.5rem;">
+                    <select name="status" class="form-control" style="width: 100%; padding: 0.5rem;">
+                        <option value="Completed">Completed</option>
+                        <option value="Ongoing">Ongoing</option>
+                        <option value="Planning">Planning</option>
+                    </select>
+                </div>
+                
+                <!-- Image Upload -->
+                <div style="margin-bottom: 1rem;">
+                    <label style="display: block; margin-bottom: 0.5rem; font-size: 0.9rem; color: #64748b;">Project Images (Select Multiple)</label>
+                    <input type="file" id="imageInput" accept="image/*" multiple class="form-control" style="width: 100%; padding: 0.5rem;">
+                    <!-- Hidden input to store JSON string of array -->
+                    <input type="hidden" name="galleryJSON" id="galleryJSON">
+                    
+                    <div id="imagePreviewContainer" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(80px, 1fr)); gap: 0.5rem; margin-top: 0.5rem;">
+                        <!-- Previews go here -->
+                    </div>
+                </div>
+
+                <textarea name="shortDesc" placeholder="Short Description" class="form-control" style="width: 100%; padding: 0.5rem; margin-bottom: 1rem; height: 80px;"></textarea>
+                
+                <div style="display: flex; gap: 1rem; justify-content: flex-end;">
+                    <button type="button" onclick="closeModal()" class="btn btn-outline" style="padding: 0.5rem 1rem;">Cancel</button>
+                    <button type="submit" class="btn btn-primary" style="padding: 0.5rem 1rem;">Save Project</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <script type="module">
+        import { db } from './js/db.js';
+        import { Calculator } from './js/calculator.js';
+
+        // --- AUTH SIMULATION ---
+        const SESSION_KEY = 'esquared_auth';
+        if (sessionStorage.getItem(SESSION_KEY)) { showDashboard(); }
+        document.getElementById('loginForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            if (document.getElementById('adminPass').value === 'admin123') {
+                sessionStorage.setItem(SESSION_KEY, 'true');
+                showDashboard();
+            } else { alert('Invalid Password'); }
+        });
+        document.getElementById('logoutBtn').addEventListener('click', () => {
+            sessionStorage.removeItem(SESSION_KEY);
+            window.location.reload();
+        });
+        function showDashboard() {
+            document.getElementById('loginScreen').style.display = 'none';
+            document.getElementById('adminPanel').style.display = 'block';
+            loadData();
+        }
+
+        // --- DATA LOADING (Async) ---
+        async function loadData() {
+            const bookings = db.getBookings(); // still sync
+            const quotes = db.getQuotes();     // still sync
+            const projects = await db.getProjects(); // ASYNC!
+
+            document.getElementById('totalBookings').textContent = bookings.length;
+            document.getElementById('totalQuotes').textContent = quotes.length;
+            document.getElementById('totalProjects').textContent = projects.length;
+
+            const bookingsTable = document.getElementById('bookingsTable');
+            bookingsTable.innerHTML = '';
+            bookings.slice(0, 5).forEach(b => {
+                bookingsTable.innerHTML += `<tr><td>${b.date}</td><td>${b.name}</td><td>${b.service}</td></tr>`;
+            });
+
+            const quotesTable = document.getElementById('quotesTable');
+            quotesTable.innerHTML = '';
+            quotes.slice(0, 5).forEach(q => {
+                quotesTable.innerHTML += `<tr><td>${new Date(q.createdAt).toLocaleDateString()}</td><td>${q.input.type}</td><td>${Calculator.formatCurrency(q.result.totalEstimate)}</td></tr>`;
+            });
+
+            renderProjectTable(projects);
+        }
+
+        // --- PROJECT MANAGEMENT ---
+        function renderProjectTable(projects) {
+            const table = document.getElementById('projectsTable');
+            table.innerHTML = '';
+            
+            projects.forEach(p => {
+                // Determine cover image (handle both snake_case from DB and camelCase from JS fallback)
+                let cover = '#';
+                if (p.gallery && p.gallery.length > 0) cover = p.gallery[0];
+                else if (p.image_url) cover = p.image_url; 
+                else if (p.imageUrl) cover = p.imageUrl;
+
+                const tr = document.createElement('tr');
+                tr.innerHTML = `
+                    <td><img src="${cover}" style="width: 50px; height: 30px; object-fit: cover; border-radius: 4px;"></td>
+                    <td><strong>${p.title}</strong><br><span style="font-size:0.8rem; color:#64748b">${p.location}</span></td>
+                    <td>${p.type}</td>
+                    <td><span style="font-size:0.8rem; padding: 2px 8px; background: #e2e8f0; border-radius: 12px;">${p.status}</span></td>
+                    <td style="display: flex; gap: 0.5rem;">
+                        <button class="btn-sm edit-btn" data-id="${p.id}" style="color: var(--primary); cursor:pointer; border: 1px solid var(--primary); padding: 2px 8px; border-radius: 4px; background:white;">Edit</button>
+                        <button class="btn-sm delete-btn" data-id="${p.id}" style="color: red; cursor:pointer; border: 1px solid red; padding: 2px 8px; border-radius: 4px; background:white;">Delete</button>
+                    </td>
+                `;
+                table.appendChild(tr);
+            });
+
+            document.querySelectorAll('.delete-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                   if(confirm('Delete project?')) { 
+                       await db.deleteProject(btn.dataset.id); 
+                       loadData(); 
+                   }
+                });
+            });
+
+            document.querySelectorAll('.edit-btn').forEach(btn => {
+                btn.addEventListener('click', async () => {
+                    const project = await db.getProjectById(btn.dataset.id);
+                    openProjectModal(project);
+                });
+            });
+        }
+
+        // --- MODAL & IMAGE HANDLING ---
+        const modal = document.getElementById('projectModal');
+        const form = document.getElementById('projectForm');
+        const imageInput = document.getElementById('imageInput');
+        const previewContainer = document.getElementById('imagePreviewContainer');
+        
+        let currentGallery = []; // Stores URLs (strings)
+        let pendingFiles = [];   // Stores File objects to be uploaded
+
+        function renderPreviews() {
+            previewContainer.innerHTML = '';
+            [...currentGallery, ...pendingFiles].forEach((item, index) => {
+                let imgSrc = item;
+                if (item instanceof File) {
+                    imgSrc = URL.createObjectURL(item);
+                }
+                
+                const div = document.createElement('div');
+                div.style.position = 'relative';
+                div.innerHTML = `
+                    <img src="${imgSrc}" style="width: 100%; height: 60px; object-fit: cover; border-radius: 4px; border: 1px solid #ddd;">
+                    <span onclick="window.removeImage(${index})" style="position: absolute; top: -5px; right: -5px; background: red; color: white; border-radius: 50%; width: 18px; height: 18px; font-size: 12px; display: flex; align-items: center; justify-content: center; cursor: pointer;">&times;</span>
+                `;
+                previewContainer.appendChild(div);
+            });
+        }
+
+        window.removeImage = (index) => {
+            // Determine if index is in currentGallery or pendingFiles
+            if (index < currentGallery.length) {
+                currentGallery.splice(index, 1);
+            } else {
+                pendingFiles.splice(index - currentGallery.length, 1);
+            }
+            renderPreviews();
+        };
+
+        imageInput.addEventListener('change', function(e) {
+            const files = Array.from(e.target.files);
+            pendingFiles = [...pendingFiles, ...files];
+            imageInput.value = ''; // Reset
+            renderPreviews();
+        });
+
+        window.openProjectModal = (project = null) => {
+            form.reset();
+            currentGallery = [];
+            pendingFiles = [];
+            
+            if (project) {
+                document.getElementById('modalTitle').textContent = 'Edit Project';
+                document.getElementById('prjId').value = project.id;
+                form.elements.title.value = project.title;
+                form.elements.type.value = project.type;
+                form.elements.location.value = project.location;
+                form.elements.status.value = project.status;
+                form.elements.shortDesc.value = project.short_desc || project.shortDesc; // Handle snake_case
+                
+                if (project.gallery && Array.isArray(project.gallery)) {
+                    currentGallery = [...project.gallery];
+                } else if (project.image_url) {
+                    currentGallery = [project.image_url];
+                }
+            } else {
+                document.getElementById('modalTitle').textContent = 'Add New Project';
+                document.getElementById('prjId').value = '';
+            }
+            renderPreviews();
+            modal.style.display = 'flex';
+        };
+
+        window.closeModal = () => { modal.style.display = 'none'; };
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const submitBtn = form.querySelector('button[type="submit"]');
+            const originalText = submitBtn.textContent;
+            submitBtn.textContent = 'Uploading...';
+            submitBtn.disabled = true;
+
+            try {
+                // 1. Upload Pending Files to Supabase
+                const uploadedUrls = [];
+                for (const file of pendingFiles) {
+                    const url = await db.uploadImage(file);
+                    uploadedUrls.push(url);
+                }
+
+                // 2. Combine with existing gallery
+                const finalGallery = [...currentGallery, ...uploadedUrls];
+
+                if (finalGallery.length === 0) {
+                    // alert('Please include at least one image.');
+                    // throw new Error('No images');
+                    console.log('No images provided, proceeding anyway for debug.');
+                }
+
+                const formData = new FormData(form);
+                const data = Object.fromEntries(formData.entries());
+                const id = data.id;
+
+                const projectData = {
+                    title: data.title,
+                    type: data.type,
+                    location: data.location,
+                    status: data.status,
+                    imageUrl: finalGallery[0], 
+                    gallery: finalGallery,
+                    shortDesc: data.shortDesc,
+                    client: 'Private Client',
+                    timeline: '6 Months',
+                    area: '150 sqm',
+                    fullDesc: data.shortDesc + ' Full detailed description...'
+                };
+                
+                if (id) {
+                    await db.updateProject(id, projectData);
+                    alert('Project Updated!');
+                } else {
+                    await db.addProject(projectData);
+                    alert('Project Saved!');
+                }
+                closeModal();
+                loadData();
+            } catch (err) {
+                console.error(err);
+                alert('Error saving project: ' + (err.message || JSON.stringify(err)));
+            } finally {
+                submitBtn.textContent = originalText;
+                submitBtn.disabled = false;
+            }
+        });
+
+        // Tab Switcher Global
+        window.switchTab = (tabId) => {
+            document.querySelectorAll('.tab-content').forEach(el => el.classList.remove('active'));
+            document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+            document.getElementById(tabId).classList.add('active');
+            
+            // Find button roughly
+            const btns = document.querySelectorAll('.tab-btn');
+            if (tabId === 'overview') btns[0].classList.add('active');
+            if (tabId === 'projects') btns[1].classList.add('active');
+        };
+    </script>
+</body>
+</html>

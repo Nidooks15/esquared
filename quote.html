@@ -1,0 +1,260 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Get Quotation | Esquared Construction</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Header:wght@700;800&family=Inter:wght@400;500;600&family=Outfit:wght@400;600;700&display=swap" rel="stylesheet">
+    
+    <!-- Styles -->
+    <link rel="stylesheet" href="css/styles.css">
+    <!-- Supabase -->
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+    
+    <!-- Libraries -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/html2pdf.js/0.10.1/html2pdf.bundle.min.js"></script>
+
+    <style>
+        .quote-form-container {
+            background: white;
+            padding: 3rem;
+            border-radius: 12px;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1);
+        }
+
+        .form-group {
+            margin-bottom: 1.5rem;
+        }
+
+        .form-label {
+            display: block;
+            margin-bottom: 0.5rem;
+            font-weight: 600;
+            color: var(--secondary);
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            border: 2px solid #e2e8f0;
+            border-radius: 6px;
+            font-family: var(--font-body);
+            font-size: 1rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        .quote-result {
+            display: none;
+            background: #f8fafc;
+            border: 1px solid #e2e8f0;
+            border-radius: 8px;
+            padding: 2rem;
+            margin-top: 2rem;
+        }
+
+        .line-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 0.75rem 0;
+            border-bottom: 1px solid #e2e8f0;
+        }
+
+        .line-item.total {
+            border-top: 2px solid var(--secondary);
+            border-bottom: none;
+            font-weight: 700;
+            font-size: 1.25rem;
+            margin-top: 1rem;
+            padding-top: 1rem;
+            color: var(--primary-dark);
+        }
+
+        #pdf-content {
+            background: white;
+        }
+    </style>
+</head>
+<body>
+
+    <!-- Nav -->
+    <nav class="navbar">
+        <div class="container nav-container">
+            <a href="index.html" class="brand">
+                <img src="images/logo.png" alt="E-Squared Logo" style="height: 50px; margin-right: 10px;">
+                <div style="display: flex; flex-direction: column; line-height: 1.1;">
+                    <span style="font-size: 1.2rem; letter-spacing: 0.05em; color: var(--secondary);">E-SQUARED</span>
+                    <span style="font-size: 0.7rem; font-weight: 400; color: var(--primary);">ENGINEERING SERVICES</span>
+                </div>
+            </a>
+            <ul class="nav-links">
+                <li><a href="index.html" class="nav-link">Home</a></li>
+                <li><a href="quote.html" class="nav-link active">Get Quote</a></li>
+                <li><a href="schedule.html" class="btn btn-primary">Schedule Meeting</a></li>
+            </ul>
+        </div>
+    </nav>
+
+    <!-- Header -->
+    <div class="section pb-0 text-center" style="background: var(--secondary); color: white; padding-bottom: 4rem;">
+        <div class="container">
+            <h1 class="mb-1" style="color: white;">Construction Cost Estimator</h1>
+            <p>Get a preliminary estimate for your dream project in seconds.</p>
+        </div>
+    </div>
+
+    <!-- Main Content -->
+    <section class="section" style="margin-top: -3rem;">
+        <div class="container" style="max-width: 800px;">
+            <div class="quote-form-container">
+                <form id="quoteForm">
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Project Type</label>
+                            <select name="type" class="form-control" required>
+                                <option value="residential">Residential House</option>
+                                <option value="commercial">Commercial Building</option>
+                            </select>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Location</label>
+                            <select name="location" class="form-control" required>
+                                <option value="metro">Metro Manila</option>
+                                <option value="provincial">Provincial</option>
+                                <option value="remote">Remote / Island</option>
+                            </select>
+                        </div>
+                    </div>
+
+                    <div class="grid grid-2">
+                        <div class="form-group">
+                            <label class="form-label">Floor Area (sqm)</label>
+                            <input type="number" name="area" class="form-control" placeholder="e.g. 150" required min="20">
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Number of Floors</label>
+                            <input type="number" name="floors" class="form-control" value="1" required min="1" max="50">
+                        </div>
+                    </div>
+
+                    <div class="form-group">
+                        <label class="form-label">Material Finish Quality</label>
+                        <select name="finish" class="form-control" required>
+                            <option value="basic">Basic (Cost Effective)</option>
+                            <option value="standard" selected>Standard (Recommended)</option>
+                            <option value="premium">Premium (High End)</option>
+                        </select>
+                    </div>
+
+                    <button type="submit" class="btn btn-primary" style="width: 100%;">Generate Quotation</button>
+                </form>
+
+                <!-- Result Area -->
+                <div id="quoteResult" class="quote-result">
+                    <div id="pdf-content" style="padding: 1rem;">
+                        <div class="text-center mb-2">
+                            <h2 style="color: var(--primary);">Estimated Citation</h2>
+                            <p id="ref-id" style="font-size: 0.9rem; color: #64748b;"></p>
+                        </div>
+
+                        <div class="line-item">
+                            <span>Total Floor Area</span>
+                            <span id="res-area">0 sqm</span>
+                        </div>
+                        <div class="line-item">
+                            <span>Structural Cost</span>
+                            <span id="res-struct">0.00</span>
+                        </div>
+                        <div class="line-item">
+                            <span>Architectural Finishes</span>
+                            <span id="res-arch">0.00</span>
+                        </div>
+                        <div class="line-item">
+                            <span>Electrical & Plumbing</span>
+                            <span id="res-mep">0.00</span>
+                        </div>
+                        <div class="line-item">
+                            <span>Labor & Supervision (35%)</span>
+                            <span id="res-labor">0.00</span>
+                        </div>
+                        <div class="line-item">
+                            <span>Contingency Fund (10%)</span>
+                            <span id="res-contin">0.00</span>
+                        </div>
+
+                        <div class="line-item total">
+                            <span>Total Estimate</span>
+                            <span id="res-total">0.00</span>
+                        </div>
+                        
+                        <p style="margin-top: 2rem; font-size: 0.8rem; color: #94a3b8; font-style: italic;">
+                            *This serves as a preliminary estimation only and does not constitute a binding contract. Final costs subject to detailed engineering design and site inspection.
+                        </p>
+                    </div>
+
+                    <div style="margin-top: 2rem; display: flex; gap: 1rem;">
+                        <button id="downloadPdf" class="btn btn-outline" style="flex: 1;">Download PDF</button>
+                        <a href="schedule.html" class="btn btn-primary" style="flex: 1;">Book Consultation</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Script -->
+    <script type="module">
+        import { Calculator } from './js/calculator.js';
+        import { db } from './js/db.js';
+
+        const form = document.getElementById('quoteForm');
+        const resultDiv = document.getElementById('quoteResult');
+
+        form.addEventListener('submit', (e) => {
+            e.preventDefault();
+            const formData = new FormData(form);
+            const data = Object.fromEntries(formData.entries());
+            
+            // Calculate
+            const result = Calculator.calculate(data);
+            
+            // Save to DB
+            const savedQuote = db.addQuote({
+                input: data,
+                result: result
+            });
+
+            // Update UI
+            document.getElementById('ref-id').textContent = `Ref: ${savedQuote.id}`;
+            document.getElementById('res-area').textContent = `${result.details.totalArea} sqm`;
+            document.getElementById('res-struct').textContent = Calculator.formatCurrency(result.details.structural);
+            document.getElementById('res-arch').textContent = Calculator.formatCurrency(result.details.architectural);
+            document.getElementById('res-mep').textContent = Calculator.formatCurrency(result.details.mep);
+            document.getElementById('res-labor').textContent = Calculator.formatCurrency(result.details.labor);
+            document.getElementById('res-contin').textContent = Calculator.formatCurrency(result.details.contingency);
+            document.getElementById('res-total').textContent = Calculator.formatCurrency(result.totalEstimate);
+
+            resultDiv.style.display = 'block';
+            resultDiv.scrollIntoView({ behavior: 'smooth' });
+        });
+
+        // PDF Generation
+        document.getElementById('downloadPdf').addEventListener('click', () => {
+            const element = document.getElementById('pdf-content');
+            const opt = {
+                margin:       0.5,
+                filename:     'Esquared_Quotation.pdf',
+                image:        { type: 'jpeg', quality: 0.98 },
+                html2canvas:  { scale: 2 },
+                jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
+            };
+            html2pdf().set(opt).from(element).save();
+        });
+    </script>
+</body>
+</html>
